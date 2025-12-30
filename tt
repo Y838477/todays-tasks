@@ -56,6 +56,16 @@ function cat_all_tasks(){
 	cat "$TT_LIST_FILE_PATH"
 }
 
+function update_task(){
+	if [[ $(grep -c "$1" < "$TT_LIST_FILE_PATH") -le 0 ]]; then
+		echo "Update operation terminated with error: Task with id $1 does not exist"
+		exit 0;
+	else
+		sed -i "s/$1 .*/$1 $2/" "$TT_LIST_FILE_PATH"
+		echo "task has been updated."	
+	fi
+}
+
 function delete_task(){
 	if [[ $(grep -c "$1" < "$TT_LIST_FILE_PATH") -le 0 ]]; then
 		echo "Delete operation terminated with error: Task with id $1 does not exist"
@@ -104,7 +114,7 @@ if [[ -n $1 && "$1" =~ -[crudDhx]+ ]]; then
 			r)
 				printf "read operation on task list\n"; cat_all_tasks;;
 			u)
-				printf "update operation on task id: %s\n" "$2";;
+				printf "update operation on task id: %s\n" "$2"; update_task "$2" "$3";;
 			d)
 				printf "delete operation on task id: %s\n" "$2"; delete_task "$2";;
 			D)
