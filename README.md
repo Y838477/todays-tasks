@@ -8,18 +8,18 @@ More importantly, I use this application to learn bash scripting language and fa
 Download the files in your linux machine.
 go to the user bin directory:
 
-´´´bash
+```bash
 cd /usr/local/bin
-´´´ 
+``` 
 
 then create a symlink to "todays-tasks" application:
-´´´bash
+```bash
 ln -s ~/path/to/todays-tasks .
-´´´
+```
 
 finally, make sure that "todays-tasks" is reachable from your global variable "$PATH":
-´´´bash
+```bash
 tt -h
-´´´
+```
 
 You should get a message that gives you more information on how to use the application.
