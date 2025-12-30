@@ -14,7 +14,7 @@ cd /usr/local/bin
 
 then create a symlink to "todays-tasks" application:
 ```bash
-ln -s ~/path/to/todays-tasks .
+ln -s ~/path/to/todays-tasks/tt .
 ```
 
 finally, make sure that "todays-tasks" is reachable from your global variable "$PATH":
