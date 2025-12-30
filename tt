@@ -1,0 +1,123 @@
+#!/bin/bash
+# get the size of an array: ${#var_name[@]}
+# get the size of a string: ${#var_name}
+
+DONE_PREFIX="- [x]"
+TO_DO_PREFIX="- [ ]"
+TODAYS_DATE=$(date +%m%d)
+TT_LIST_FILE_PATH="$HOME/.tt.d/tasks_list.md"
+SED_REGEX_UNDONE="s/- \[\s\]"
+
+function touch_tasks_file_if_not_exist() {
+	if [[ ! -f $TT_LIST_FILE_PATH ]]; then
+		echo "task file does not exist"
+		echo "creating directory for tasks list"
+		mkdir "$HOME"/.tt.d/
+		echo "creating tasks file..."
+		touch "$TT_LIST_FILE_PATH"
+		echo "tasks file created: $TT_LIST_FILE_PATH"
+	fi
+}
+
+function get_global_task_count(){
+	local global_task_count
+	global_task_count=$(grep -c "#[0-9]\{4\}-[0-9]\+" < "$TT_LIST_FILE_PATH")
+	echo "$global_task_count"
+}
+
+function get_undone_task_count(){
+	local undone_task_count
+	undone_task_count=$(grep -c "\[\s\] #[0-9]\{4\}-[0-9]\+" < "$TT_LIST_FILE_PATH")
+	echo "$undone_task_count"
+}
+
+function get_todays_task_count(){
+	local todays_task_count
+	todays_task_count=$(grep -c "#$TODAYS_DATE-[0-9]\+" < "$TT_LIST_FILE_PATH")
+	echo "$todays_task_count"
+}
+
+function get_incremented_todays_task_count(){
+	local incremented_todays_task_count
+	incremented_todays_task_count=$(get_todays_task_count)
+	((incremented_todays_task_count++))
+	echo "$incremented_todays_task_count"
+}
+
+function create_new_task(){
+	echo "$TO_DO_PREFIX #$TODAYS_DATE-$(get_incremented_todays_task_count) $1" >> "$TT_LIST_FILE_PATH"
+}
+
+function cat_all_tasks(){
+	echo "$(get_global_task_count) tasks in total"
+	echo "$(get_todays_task_count) tasks created today"
+	echo "$(get_undone_task_count) tasks are still to be done"
+	
+	cat "$TT_LIST_FILE_PATH"
+}
+
+function delete_task(){
+	if [[ $(grep -c "$1" < "$TT_LIST_FILE_PATH") -le 0 ]]; then
+		echo "Delete operation terminated with error: Task with id $1 does not exist"
+		exit 0;
+	else
+		sed -i "/$1/d" "$TT_LIST_FILE_PATH"
+		echo "task has been deleted."	
+	fi
+
+}
+
+function delete_all_tasks(){
+	echo "You are about to delete all tasks in file $TT_LIST_FILE_PATH"
+	echo "Do you really want to delete all tasks ?"
+	read -r answer
+	if [[ $answer = "y" || $answer = "Y" ]]; then
+		echo "" > "$TT_LIST_FILE_PATH"		
+		echo "Task list is now empty"
+	else
+		echo "Task list has been restored"
+		cat "$TT_LIST_FILE_PATH"
+	fi
+	
+}
+
+function mark_task_as_done(){
+	if [[ $(grep -c "$1" < "$TT_LIST_FILE_PATH") -le 0 ]]; then
+		echo "Marking the task as done terminated with error: Task $1 does not exist"
+		exit 0;
+	else
+		sed -i "$SED_REGEX_UNDONE $1/$DONE_PREFIX $1/" "$TT_LIST_FILE_PATH"
+		echo "Task with id $1 has been marked as done"
+	fi
+
+}
+
+if [[ -n $1 && "$1" =~ -[crudDhx]+ ]]; then
+	args=$1;
+	index=1;
+	touch_tasks_file_if_not_exist
+	while [[ $index -lt ${#args} ]]; do
+		opt=${args:$index:1}
+		case $opt in
+			c)
+				printf "create operation running for task: %s\n" "$2"; create_new_task "$2";;
+			r)
+				printf "read operation on task list\n"; cat_all_tasks;;
+			u)
+				printf "update operation on task id: %s\n" "$2";;
+			d)
+				printf "delete operation on task id: %s\n" "$2"; delete_task "$2";;
+			D)
+				printf "deleting all tasks\n"; delete_all_tasks;;
+			x)
+				printf "marking task with id: %s as done\n" "$2"; mark_task_as_done "$2";;
+		esac
+		((index++));
+	done
+else
+	printf "Some of these flags '%s'  are not supported\n" "$1";
+	exit 1;
+
+fi
+
+exit 0;
