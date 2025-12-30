@@ -6,7 +6,7 @@ DONE_PREFIX="- [x]"
 TO_DO_PREFIX="- [ ]"
 TODAYS_DATE=$(date +%m%d)
 TT_LIST_FILE_PATH="$HOME/.tt.d/tasks_list.md"
-SED_REGEX_UNDONE="s/- \[\s\]"
+SED_REGEX_UNDONE="- \[\s\]"
 
 function touch_tasks_file_if_not_exist() {
 	if [[ ! -f $TT_LIST_FILE_PATH ]]; then
@@ -42,6 +42,16 @@ function get_incremented_todays_task_count(){
 	incremented_todays_task_count=$(get_todays_task_count)
 	((incremented_todays_task_count++))
 	echo "$incremented_todays_task_count"
+}
+
+function process_task_id(){
+	task_id=$1
+	if [[ -n "$task_id" && ${task_id:0:1} = "#" ]]; then
+		echo "$task_id"
+	else
+		echo "#$task_id"
+	fi
+
 }
 
 function create_new_task(){
@@ -96,7 +106,8 @@ function mark_task_as_done(){
 		echo "Marking the task as done terminated with error: Task $1 does not exist"
 		exit 0;
 	else
-		sed -i "$SED_REGEX_UNDONE $1/$DONE_PREFIX $1/" "$TT_LIST_FILE_PATH"
+		task_id=$(process_task_id "$1")
+		sed -i "s/$SED_REGEX_UNDONE $task_id/$DONE_PREFIX $task_id/" "$TT_LIST_FILE_PATH"
 		echo "Task with id $1 has been marked as done"
 	fi
 
