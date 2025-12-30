@@ -113,6 +113,16 @@ function mark_task_as_done(){
 
 }
 
+function print_help_page(){
+	echo "Please use the following flags:"
+	echo "	-c to create or add a new task to the list"
+	echo "	-r to read from the list of all tasks"
+	echo "	-u to update a task description"
+	echo "	-d to delete a task from the list"
+	echo "	-D to delete all the task from the list"
+	echo "	-x to mark a task as done"
+}
+
 if [[ -n $1 && "$1" =~ -[crudDhx]+ ]]; then
 	args=$1;
 	index=1;
@@ -132,6 +142,8 @@ if [[ -n $1 && "$1" =~ -[crudDhx]+ ]]; then
 				printf "deleting all tasks\n"; delete_all_tasks;;
 			x)
 				printf "marking task with id: %s\n" "$2"; mark_task_as_done "$2";;
+			h)
+				print_help_page;;
 		esac
 		((index++));
 	done
