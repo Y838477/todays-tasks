@@ -131,7 +131,7 @@ if [[ -n $1 && "$1" =~ -[crudDhx]+ ]]; then
 			D)
 				printf "deleting all tasks\n"; delete_all_tasks;;
 			x)
-				printf "marking task with id: %s as done\n" "$2"; mark_task_as_done "$2";;
+				printf "marking task with id: %s\n" "$2"; mark_task_as_done "$2";;
 		esac
 		((index++));
 	done
